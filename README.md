@@ -9,7 +9,7 @@ Since we're throwing actions and reducers into a single file, let's not bother w
 
 ```javascript
 
-const somethingStart = makeActionCreator('example-SOMETHING_START');
+const somethingStart = cooldux.makeActionCreator('example-SOMETHING_START');
 
 // later something dispatches our action..
 dispatch(somethingStart({foo: 'bar'}));
@@ -32,7 +32,7 @@ A reducer factory function that can handle a reset action and set the created re
 
 ```javascript
 
-const reducer = resetReducer(initialState, function(state = initialState, action) {
+const reducer = cooldux.resetReducer(initialState, function(state = initialState, action) {
   //cooldux resets are already handled!
   switch (action.type) {
     // the rest of your action types..
