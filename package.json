@@ -1,0 +1,30 @@
+{
+  "name": "cooldux",
+  "version": "0.1.0",
+  "description": "Simple redux ducks patter helper",
+  "main": "index.js",
+  "scripts": {
+    "test": "istanbul cover _mocha && npm run check-coverage",
+    "check-coverage": "istanbul check-coverage --statements 100 --branches 100 --lines 100 --functions 100"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/iceddev/cooldux.git"
+  },
+  "keywords": [
+    "redux",
+    "ducks",
+    "react"
+  ],
+  "author": "Luis Montes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iceddev/cooldux/issues"
+  },
+  "homepage": "https://github.com/iceddev/cooldux#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0"
+  }
+}
