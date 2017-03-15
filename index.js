@@ -10,17 +10,17 @@ function makeActionCreator(type) {
   return actionCreator;
 }
 
-var resetAction = makeActionCreator('cooldux-RESET');
+var resetActionCreator = makeActionCreator('cooldux-RESET');
 
 function reset() {
   return function dispatcher(dispatch) {
-    dispatch(resetAction());
+    dispatch(resetActionCreator());
   };
 }
 
 function resetReducer(initialState, reducer){
   return function(state, action){
-    if(resetAction.type === action.type){
+    if(resetActionCreator.type === action.type){
       return initialState;
     }
     return reducer(state, action);
@@ -31,5 +31,6 @@ function resetReducer(initialState, reducer){
 module.exports = {
   makeActionCreator: makeActionCreator,
   reset: reset,
+  resetActionCreator: resetActionCreator,
   resetReducer: resetReducer
 };

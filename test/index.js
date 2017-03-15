@@ -48,5 +48,4 @@ describe('cooldux', function(){
 
   });
 
-
 });
