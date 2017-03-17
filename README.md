@@ -1,5 +1,8 @@
 # cooldux
 
+![cooldux](cooldux.png)
+
+
 Just a few very simple helpers for the [redux](http://redux.js.org/) [ducks pattern](https://github.com/erikras/ducks-modular-redux)
 
 
@@ -42,7 +45,7 @@ const reducer = cooldux.resetReducer(initialState, function(state = initialState
 //something dispatches a reset:
 dispatch(cooldux.resetAction());
 
-//OR dispatches automatically if thunk is used:
-cooldux.reset();
+//OR from a connected react component with thunk:
+this.props.reset();
 
 ```

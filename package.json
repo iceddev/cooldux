@@ -1,7 +1,7 @@
 {
   "name": "cooldux",
-  "version": "0.1.0",
-  "description": "Simple redux ducks patter helper",
+  "version": "0.1.1",
+  "description": "Simple redux ducks pattern helper",
   "main": "index.js",
   "scripts": {
     "test": "istanbul cover _mocha && npm run check-coverage",
