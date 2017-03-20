@@ -43,9 +43,43 @@ const reducer = cooldux.resetReducer(initialState, function(state = initialState
 });
 
 //something dispatches a reset:
-dispatch(cooldux.resetAction());
+dispatch(cooldux.reset());
 
-//OR from a connected react component with thunk:
-this.props.reset();
+
+```
+
+
+## promiseHandler
+
+Async API calls with redux typically use 3 actions: a Start, End, and Error.
+
+If you're using Promises, cooldux.promiseHandler wraps this all up for you and automatically dispatches the correct actions:
+
+```javascript
+
+const { fetchStart, fetchEnd, fetchError, fetchHandler } = promiseHandler('fetch');
+
+//your redux-thunk action creator
+export function fetchData() {
+  return function dispatcher(dispatch) {
+      const promise = somePromiseAPI();
+      return fetchHandler(promise, dispatch);
+  };
+}
+
+//your reducer can use the action types returned above with promiseHandler
+export default function reducer(state = initialState, { payload, type }) {
+  switch (type) {
+    case fetchStart.type:
+      return { ...state, isFetching: true };
+    case fetchEnd.type:
+      return { ...state, isFetching: false, info: payload };
+    case fetchError.type:
+      return { ...state, isFetching: false, error: payload };
+    default:
+      return state;
+  }
+}
+
 
 ```
