@@ -90,4 +90,36 @@ describe('cooldux', function(){
 
   });
 
+
+  //using native Promise for test (node >= 6)
+  it('promiseHandler should provide a reducer and initial state', function(done){
+    var handler = cooldux.promiseHandler('test');
+
+    handler.testReducer.should.be.a('function');
+    handler.testInitialState.should.be.a('object');
+    expect(handler.testInitialState).to.have.property('testPending');
+    expect(handler.testInitialState).to.have.property('test');
+    expect(handler.testInitialState).to.have.property('testError');
+
+    var state = handler.testReducer(null, {type: 'unknown'});
+    state.should.equal(handler.testInitialState);
+
+    function dispatch(action){
+      state = handler.testReducer(null, action);
+      if(state.testError){
+        done();
+      }
+    }
+
+    handler.testHandler(new Promise(function(resolve, reject){
+      return resolve('ok');
+    }), dispatch);
+
+    handler.testHandler(new Promise(function(resolve, reject){
+      return reject('bad');
+    }), dispatch);
+
+
+  });
+
 });

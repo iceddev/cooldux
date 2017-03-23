@@ -24,6 +24,13 @@ function resetReducer(initialState, reducer){
 function promiseHandler(type, namespace){
   var name = (namespace ? namespace + '-' : '') + type;
   var creators = {};
+  var initialState = {};
+  initialState[type] = null;
+  initialState[type + 'Pending'] = false;
+  initialState[type + 'Error'] = null;
+  creators[type + 'InitialState'] = initialState;
+
+
   creators[type + 'Start'] = makeActionCreator(name + '_Start');
   creators[type + 'End'] = makeActionCreator(name + '_End');
   creators[type + 'Error'] = makeActionCreator(name + '_Error');
@@ -40,8 +47,32 @@ function promiseHandler(type, namespace){
     });
   };
 
+  creators[type + 'Reducer'] = function(state, action){
+    state = state || initialState;
+    var mutations = {};
+    switch (action.type) {
+      case creators[type + 'Start'].type:
+        mutations[type + 'Pending'] = true;
+        mutations[type + 'Error'] = null;
+        return Object.assign({}, state, mutations);
+      case creators[type + 'End'].type:
+        mutations[type + 'Pending'] = false;
+        mutations[type + 'Error'] = null;
+        mutations[type] = action.payload;
+        return Object.assign({}, state, mutations);
+      case creators[type + 'Error'].type:
+        mutations[type + 'Pending'] = false;
+        mutations[type + 'Error'] = action.payload;
+        return Object.assign({}, state, mutations);
+      default:
+        return state;
+    }
+
+  };
+
   return creators;
 }
+
 
 module.exports = {
   makeActionCreator: makeActionCreator,

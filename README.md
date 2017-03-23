@@ -53,33 +53,52 @@ dispatch(cooldux.reset());
 
 Async API calls with redux typically use 3 actions: a Start, End, and Error.
 
-If you're using Promises, cooldux.promiseHandler wraps this all up for you and automatically dispatches the correct actions:
+If you're using Promises, `cooldux.promiseHandler` wraps this all up for you and automatically dispatches the correct actions:
 
 ```javascript
 
-const { fetchStart, fetchEnd, fetchError, fetchHandler } = promiseHandler('fetch');
+const { exampleStart, exampleEnd, exampleError, exampleHandler } = promiseHandler('example');
 
 //your redux-thunk action creator
 export function fetchData() {
   return function dispatcher(dispatch) {
       const promise = somePromiseAPI();
-      return fetchHandler(promise, dispatch);
+      return exampleHandler(promise, dispatch);
   };
 }
 
 //your reducer can use the action types returned above with promiseHandler
 export default function reducer(state = initialState, { payload, type }) {
   switch (type) {
-    case fetchStart.type:
-      return { ...state, isFetching: true };
-    case fetchEnd.type:
-      return { ...state, isFetching: false, info: payload };
-    case fetchError.type:
-      return { ...state, isFetching: false, error: payload };
+    case exampleStart.type:
+      return { ...state, examplePending: true, exampleError: null };
+    case exampleEnd.type:
+      return { ...state, examplePending: false, exampleError: null, example: payload };
+    case exampleError.type:
+      return { ...state, examplePending: false, exampleError: payload };
     default:
       return state;
   }
 }
 
+
+```
+
+If you follow the cooldux naming conventions, you can further remove boiler plate code using the `cooldux.promiseHandler`'s reducer:
+
+```javascript
+
+const { exampleHandler, exampleReducer } = promiseHandler('example');
+
+//your redux-thunk action creator
+export function fetchData() {
+  return function dispatcher(dispatch) {
+      const promise = somePromiseAPI();
+      return exampleHandler(promise, dispatch);
+  };
+}
+
+//this will automatically modify state in the same way as the previous example
+export default exampleReducer;
 
 ```
