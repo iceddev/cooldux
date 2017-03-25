@@ -1,6 +1,6 @@
 # cooldux
 
-[![Build Status](https://travis-ci.org/iceddev/cooldux.svg?branch=master)](https://travis-ci.org/iceddev/cooldux)
+[![Build Status](https://travis-ci.org/iceddev/cooldux.svg?branch=master)](https://travis-ci.org/iceddev/cooldux) [![NPM](https://nodei.co/npm/cooldux.png?compact=true)](https://nodei.co/npm/cooldux/)
 
 ![cooldux](cooldux.png)
 
