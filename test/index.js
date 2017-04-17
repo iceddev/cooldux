@@ -119,6 +119,37 @@ describe('cooldux', function(){
       return reject('bad');
     }), dispatch);
 
+  });
+
+  //using native Promise for test (node >= 6)
+  it('combinedHandler should provide a combined reducer and initial state', function(done){
+    var handlers = cooldux.combinedHandler(['testA', 'testB']);
+
+    handlers.should.be.a('object');
+
+    handlers.testAStart.should.be.a('function');
+    handlers.testAEnd.should.be.a('function');
+    handlers.testAError.should.be.a('function');
+    handlers.testAReducer.should.be.a('function');
+    handlers.testAInitialState.should.be.a('object');
+
+    handlers.testBStart.should.be.a('function');
+    handlers.testBEnd.should.be.a('function');
+    handlers.testBError.should.be.a('function');
+    handlers.testBReducer.should.be.a('function');
+    handlers.testBInitialState.should.be.a('object');
+
+    handlers.initialStateCombined.should.be.a('object');
+    handlers.reducerCombined.should.be.a('function');
+
+    var state = handlers.reducerCombined(null, {type: 'none', payload: 1});
+    state.should.equal(handlers.initialStateCombined);
+
+    var state2 = {foo: 1};
+    state = handlers.reducerCombined(state2, {type: 'none', payload: 1});
+    state.should.equal(state2);
+
+    done();
 
   });
 

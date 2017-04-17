@@ -107,3 +107,34 @@ export function fetchData() {
 export default exampleReducer;
 
 ```
+
+
+If you have multiple parts of the state you'd like to manage with cooldux in ssing file, you can even further remove boiler plate code using the `cooldux.combinedHandler`'s function:
+
+```javascript
+
+const { exampleAHandler,
+        exampleBHandler,
+        initialStateCombined,
+        reducerCombined
+       } = combinedHandler('exampleA', 'exampleB');
+
+
+export function fetchDataA() {
+  return function dispatcher(dispatch) {
+      const promise = somePromiseAPI();
+      return exampleAHandler(promise, dispatch);
+  };
+}
+
+export function fetchDataB() {
+  return function dispatcher(dispatch) {
+      const promise = somePromiseOtherAPI();
+      return exampleBHandler(promise, dispatch);
+  };
+}
+
+//this will run through all the reducers created
+export default reducerCombined;
+
+```

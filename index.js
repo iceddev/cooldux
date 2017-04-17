@@ -73,10 +73,30 @@ function promiseHandler(type, namespace){
   return creators;
 }
 
+function combinedHandler(types, namespace){
+  var handlers = {};
+  var initialState = {};
+  types.forEach(function(type){
+    var handler = promiseHandler(type, namespace);
+    handlers = Object.assign({}, handlers, handler);
+    initialState = Object.assign({}, initialState, handler[type + 'InitialState']);
+  });
+  handlers.initialStateCombined = initialState;
+  handlers.reducerCombined = function(state, action){
+    state = state || initialState;
+    types.forEach(function(type){
+      state = handlers[type + 'Reducer'](state, action);
+    });
+    return state;
+  };
+  return handlers;
+}
+
 
 module.exports = {
   makeActionCreator: makeActionCreator,
   reset: reset,
   resetReducer: resetReducer,
-  promiseHandler: promiseHandler
+  promiseHandler: promiseHandler,
+  combinedHandler: combinedHandler
 };
