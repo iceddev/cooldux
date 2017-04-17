@@ -108,6 +108,8 @@ export default exampleReducer;
 
 ```
 
+## combinedHandler
+
 
 If you have multiple parts of the state you'd like to manage with cooldux in ssing file, you can even further remove boiler plate code using the `cooldux.combinedHandler`'s function:
 
