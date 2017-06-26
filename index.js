@@ -21,7 +21,12 @@ function resetReducer(initialState, reducer){
   };
 }
 
-function promiseHandler(type, namespace){
+function promiseHandler(type, namespace, options){
+  options = options || {};
+  if(typeof namespace === 'object') {
+    options = namespace;
+    namespace = '';
+  }
   var name = (namespace ? namespace + '-' : '') + type;
   var creators = {};
   var initialState = {};
@@ -43,6 +48,9 @@ function promiseHandler(type, namespace){
     })
     .catch(function(error){
       dispatch(creators[type + 'Error'](error));
+      if(options.throwErrors) {
+        throw error;
+      }
       return null;
     });
   };
