@@ -21,13 +21,12 @@ function resetReducer(initialState, reducer){
   };
 }
 
-function promiseHandler(type, namespace, options){
+function promiseHandler(type, options){
   options = options || {};
-  if(typeof namespace === 'object') {
-    options = namespace;
-    namespace = '';
+  if(typeof options === 'string') {
+    options = { namespace: options };
   }
-  var name = (namespace ? namespace + '-' : '') + type;
+  var name = (options.namespace ? options.namespace + '-' : '') + type;
   var creators = {};
   var initialState = {};
   initialState[type] = null;
