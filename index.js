@@ -21,8 +21,12 @@ function resetReducer(initialState, reducer){
   };
 }
 
-function promiseHandler(type, namespace){
-  var name = (namespace ? namespace + '-' : '') + type;
+function promiseHandler(type, options){
+  options = options || {};
+  if(typeof options === 'string') {
+    options = { namespace: options };
+  }
+  var name = (options.namespace ? options.namespace + '-' : '') + type;
   var creators = {};
   var initialState = {};
   initialState[type] = null;
@@ -43,6 +47,9 @@ function promiseHandler(type, namespace){
     })
     .catch(function(error){
       dispatch(creators[type + 'Error'](error));
+      if(options.throwErrors) {
+        throw error;
+      }
       return null;
     });
   };

@@ -90,6 +90,34 @@ describe('cooldux', function(){
 
   });
 
+  if('promiseHandler should allow for namespaces on the options object', function(done) {
+    var opts = { namespace: 'foo' };
+    var handler = cooldux.promiseHandler('test', opts);
+
+    handler.testStart.type.should.equal('foo-test_Start');
+
+    done();
+  });
+
+  it('promiseHandler should throw errors optionally', function(done) {
+    var err = new Error('err');
+    var opts = { throwErrors: true }
+    var handler = cooldux.promiseHandler('test', opts);
+    function dispatch(){};
+
+    handler.testHandler(Promise.reject(err), dispatch)
+      .then(() => {
+        //Should not be called
+        expect(false).to.equal(true);
+        done();
+      })
+      .catch((returnedError) => {
+        //Should be called
+        expect(returnedError).to.equal(err);
+        done();
+      });
+  });
+
 
   //using native Promise for test (node >= 6)
   it('promiseHandler should provide a reducer and initial state', function(done){
