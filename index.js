@@ -1,5 +1,12 @@
+var typeIndex = 0;
+
+function createRandomType () {
+  typeIndex++;
+  return 'RAND_'  + typeIndex + '_' + Math.random();
+}
 
 function makeActionCreator(type) {
+  type = type || createRandomType();
   function actionCreator(payload) {
     return {
       type: type,
