@@ -18,6 +18,13 @@ describe('cooldux', function(){
     done();
   });
 
+  it('should make and action creator without a specified type', function(done){
+    var create = cooldux.makeActionCreator();
+    create.should.be.a('function');
+    create.type.should.be.a('string');
+    done();
+  });
+
 
   it('action creator should create an action', function(done){
     var type = 'cooldux-TEST';

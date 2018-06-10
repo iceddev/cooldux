@@ -17,14 +17,14 @@ Since we're throwing actions and reducers into a single file, let's not bother w
 
 ```javascript
 
-const somethingStart = cooldux.makeActionCreator('example-SOMETHING_START');
+const somethingStart = cooldux.makeActionCreator();
 
 // later something dispatches our action..
 dispatch(somethingStart({foo: 'bar'}));
 
 // and after that, our reducer can deal with action types as such:
-export default function reducer(state = initialState, action) {
-  switch (action.type) {
+export default function reducer(state = initialState, {type, payload}) {
+  switch (type) {
     case somethingStart.type:
       return { ...state, foo: payload.foo };
     default:
