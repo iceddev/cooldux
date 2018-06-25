@@ -136,7 +136,7 @@ describe('cooldux', function() {
     expect(handler.testInitialState).to.have.property('testError');
 
     var state = handler.testReducer(null, {type: 'unknown'});
-    state.should.equal(handler.testInitialState);
+    state.should.deep.equal(handler.testInitialState);
 
     function dispatch(action) {
       state = handler.testReducer(null, action);
@@ -177,11 +177,11 @@ describe('cooldux', function() {
     handlers.reducerCombined.should.be.a('function');
 
     var state = handlers.reducerCombined(null, {type: 'none', payload: 1});
-    state.should.equal(handlers.initialStateCombined);
+    state.should.deep.equal(handlers.initialStateCombined);
 
     var state2 = {foo: 1};
     state = handlers.reducerCombined(state2, {type: 'none', payload: 1});
-    state.should.equal(state2);
+    state.should.deep.equal(state2);
 
     done();
 

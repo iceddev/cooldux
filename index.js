@@ -60,9 +60,7 @@
     };
     creators[type + 'Reducer'] = function(state, action) {
       var obj, obj$1, obj$2;
-      if (state === void 0) {
-        state = initialState;
-      }
+      state = state || initialState;
       switch (action.type) {
        case creators[type + 'Start'].type:
         return Object.assign({}, state, (obj = {}, obj[type + 'Pending'] = true, obj[type + 'Error'] = null, 
@@ -93,12 +91,9 @@
     Object.assign(handlers, {
       initialStateCombined: Object.assign({}, initialState),
       reducerCombined: function(state, action) {
-        if (state === void 0) {
-          state = Object.assign({}, initialState);
-        }
         return types.reduce(function(state, type) {
           return handlers[type + 'Reducer'](state, action);
-        }, state);
+        }, Object.assign({}, state || initialState));
       }
     });
     return handlers;

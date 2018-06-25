@@ -81,7 +81,8 @@ export function promiseHandler(type, options = {}) {
           return null;
         });
     },
-    [type + 'Reducer']: (state = initialState, action) => {
+    [type + 'Reducer']: (state, action) => {
+      state = state || initialState;
       switch (action.type) {
         case creators[type + 'Start'].type:
           return {...state, [type + 'Pending']: true, [type + 'Error']: null};
@@ -116,10 +117,10 @@ export function combinedHandler(types, options) {
   }, {});
   Object.assign(handlers, {
     initialStateCombined: {...initialState},
-    reducerCombined: (state = {...initialState}, action) =>
+    reducerCombined: (state, action) =>
       types.reduce(
         (state, type) => handlers[type + 'Reducer'](state, action),
-        state
+        {...(state || initialState)}
       )
   });
   return handlers;
