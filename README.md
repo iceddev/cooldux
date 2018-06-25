@@ -119,7 +119,7 @@ const { exampleAHandler,
         exampleBHandler,
         initialStateCombined,
         reducerCombined
-       } = combinedHandler('exampleA', 'exampleB');
+       } = combinedHandler(['exampleA', 'exampleB']);
 
 
 export function fetchDataA() {
