@@ -2,15 +2,14 @@
 
 var chai = require('chai');
 
-
 var expect = chai.expect;
 chai.should();
 
-var cooldux = require('../');
+var cooldux = require('../index.js');
 
-describe('cooldux', function(){
+describe('cooldux', function() {
 
-  it('should make and action creator', function(done){
+  it('should make and action creator', function(done) {
     var type = 'cooldux-TEST';
     var create = cooldux.makeActionCreator(type);
     create.should.be.a('function');
@@ -18,7 +17,7 @@ describe('cooldux', function(){
     done();
   });
 
-  it('should make and action creator without a specified type', function(done){
+  it('should make and action creator without a specified type', function(done) {
     var create = cooldux.makeActionCreator();
     create.should.be.a('function');
     create.type.should.be.a('string');
@@ -26,7 +25,7 @@ describe('cooldux', function(){
   });
 
 
-  it('action creator should create an action', function(done){
+  it('action creator should create an action', function(done) {
     var type = 'cooldux-TEST';
     var create = cooldux.makeActionCreator(type);
     var action = create({foo: 'bar'});
@@ -35,9 +34,9 @@ describe('cooldux', function(){
     done();
   });
 
-  it('reset reducer should create a resetable reducer', function(done){
+  it('reset reducer should create a resetable reducer', function(done) {
     var initialState = { foo: 'bar' };
-    var reducer = cooldux.resetReducer(initialState, function(state, action){
+    var reducer = cooldux.resetReducer(initialState, function(state, action) {
       action.should.be.a('object');
       return {foo: action.payload.foo};
     });
@@ -56,7 +55,7 @@ describe('cooldux', function(){
 
   });
 
-  it('promiseHandler should return an object of functions', function(done){
+  it('promiseHandler should return an object of functions', function(done) {
     var handler = cooldux.promiseHandler('test');
 
     handler.testStart.should.be.a('function');
@@ -69,26 +68,26 @@ describe('cooldux', function(){
   });
 
   //using native Promise for test (node >= 6)
-  it('promiseHandler should handle promises', function(done){
+  it('promiseHandler should handle promises', function(done) {
     var handler = cooldux.promiseHandler('test');
 
-    function dispatch(action){
-      if(action.type == handler.testError.type){
+    function dispatch(action) {
+      if(action.type == handler.testError.type) {
         done();
       }
     }
 
-    handler.testHandler(new Promise(function(resolve, reject){
+    handler.testHandler(new Promise(function(resolve, reject) {
       return resolve('ok');
     }), dispatch);
 
-    handler.testHandler(new Promise(function(resolve, reject){
+    handler.testHandler(new Promise(function(resolve, reject) {
       return reject('bad');
     }), dispatch);
 
   });
 
-  it('promiseHandler should allow for action namespaces', function(done){
+  it('promiseHandler should allow for action namespaces', function(done) {
     var handler = cooldux.promiseHandler('test', 'foo');
 
     handler.testStart.type.should.equal('foo-test_Start');
@@ -110,7 +109,7 @@ describe('cooldux', function(){
     var err = new Error('err');
     var opts = { throwErrors: true }
     var handler = cooldux.promiseHandler('test', opts);
-    function dispatch(){};
+    function dispatch() {};
 
     handler.testHandler(Promise.reject(err), dispatch)
       .then(() => {
@@ -127,7 +126,7 @@ describe('cooldux', function(){
 
 
   //using native Promise for test (node >= 6)
-  it('promiseHandler should provide a reducer and initial state', function(done){
+  it('promiseHandler should provide a reducer and initial state', function(done) {
     var handler = cooldux.promiseHandler('test');
 
     handler.testReducer.should.be.a('function');
@@ -137,27 +136,27 @@ describe('cooldux', function(){
     expect(handler.testInitialState).to.have.property('testError');
 
     var state = handler.testReducer(null, {type: 'unknown'});
-    state.should.equal(handler.testInitialState);
+    state.should.deep.equal(handler.testInitialState);
 
-    function dispatch(action){
+    function dispatch(action) {
       state = handler.testReducer(null, action);
-      if(state.testError){
+      if(state.testError) {
         done();
       }
     }
 
-    handler.testHandler(new Promise(function(resolve, reject){
+    handler.testHandler(new Promise(function(resolve, reject) {
       return resolve('ok');
     }), dispatch);
 
-    handler.testHandler(new Promise(function(resolve, reject){
+    handler.testHandler(new Promise(function(resolve, reject) {
       return reject('bad');
     }), dispatch);
 
   });
 
   //using native Promise for test (node >= 6)
-  it('combinedHandler should provide a combined reducer and initial state', function(done){
+  it('combinedHandler should provide a combined reducer and initial state', function(done) {
     var handlers = cooldux.combinedHandler(['testA', 'testB']);
 
     handlers.should.be.a('object');
@@ -178,11 +177,11 @@ describe('cooldux', function(){
     handlers.reducerCombined.should.be.a('function');
 
     var state = handlers.reducerCombined(null, {type: 'none', payload: 1});
-    state.should.equal(handlers.initialStateCombined);
+    state.should.deep.equal(handlers.initialStateCombined);
 
     var state2 = {foo: 1};
     state = handlers.reducerCombined(state2, {type: 'none', payload: 1});
-    state.should.equal(state2);
+    state.should.deep.equal(state2);
 
     done();
 
