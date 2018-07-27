@@ -1,13 +1,13 @@
 {
   "name": "cooldux",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Simple redux ducks pattern helper",
   "main": "index.js",
   "module": "index.mjs",
   "scripts": {
     "build": "rollup -c",
     "test": "istanbul cover _mocha && npm run check-coverage",
-    "check-coverage": "istanbul check-coverage --statements 100 --branches 100 --lines 100 --functions 100",
+    "check-coverage": "istanbul check-coverage --statements 100 --branches 80 --lines 100 --functions 100",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
   },
   "repository": {
