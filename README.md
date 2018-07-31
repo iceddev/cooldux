@@ -165,14 +165,9 @@ const { exampleAAction,
         reducerCombined
        } = combinedHandler(['exampleA', 'exampleB']);
 
+export const fetchDataA = () => exampleAAction(somePromiseAPI());
 
-export function fetchDataA() {
-  return exampleAAction(somePromiseAPI());
-}
-
-export function fetchDataB() {
-  return exampleBAction(someOtherAPI());
-}
+export const fetchDataB = () => exampleBAction(someOtherAPI());
 
 //this will run through all the reducers created
 export default reducerCombined;
