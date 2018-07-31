@@ -140,3 +140,41 @@ export function fetchDataB() {
 export default reducerCombined;
 
 ```
+
+
+
+
+## promiseMiddleware
+
+You can optionally add the cooldux promise-aware middleware to redux to automatically handle dispatching the different parts of an asynchronous call.
+
+Just apply promiseMiddleware:
+
+```javascript
+import { promiseMiddleware } from 'cooldux';
+const store = createStore(reducers, applyMiddleware(promiseMiddleware));
+
+```
+
+Now this lets us shorten our previous example by not having to pass around the dispatch function normally required by redux-thunk:
+
+```javascript
+
+const { exampleAAction,
+        exampleBAction,
+        reducerCombined
+       } = combinedHandler(['exampleA', 'exampleB']);
+
+
+export function fetchDataA() {
+  return exampleAAction(somePromiseAPI());
+}
+
+export function fetchDataB() {
+  return exampleBAction(someOtherAPI());
+}
+
+//this will run through all the reducers created
+export default reducerCombined;
+
+```

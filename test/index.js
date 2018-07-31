@@ -1,11 +1,31 @@
 'use strict';
 
 var chai = require('chai');
+var spies = require('chai-spies');
+
+chai.use(spies);
 
 var expect = chai.expect;
 chai.should();
 
 var cooldux = require('../index.js');
+
+
+function createMiddleware () {
+  const store = {
+    getState: chai.spy(function() {
+      return {};
+    }),
+    dispatch: chai.spy(function() {})
+  };
+  const next = chai.spy(function() {});
+
+  function invoke(action) {
+    return cooldux.promiseMiddleware(store)(next)(action);
+  }
+
+  return {store, next, invoke};
+}
 
 describe('cooldux', function() {
 
@@ -185,6 +205,50 @@ describe('cooldux', function() {
 
     done();
 
+  });
+
+  it('passes through non-cooldux promise', (done) => {
+    const { next, invoke } = createMiddleware();
+    const action = {type: 'TEST'};
+    invoke(action);
+    next.should.have.been.called.with(action);
+    done();
+  });
+
+  it('handles a successful cooldux promiseAction', (done) => {
+    const { aAction } = cooldux.promiseHandler('a');
+    const { next, invoke, store } = createMiddleware();
+    const action = aAction(Promise.resolve('ok'));
+    invoke(action)
+    .then(result => {
+      store.dispatch.should.have.been.called.twice;
+      next.should.not.have.been.called.with(action);
+      done();
+    });
+  });
+
+  it('handles a rejected cooldux promiseAction', (done) => {
+    const { aAction } = cooldux.promiseHandler('a');
+    const { next, invoke, store } = createMiddleware();
+    const action = aAction(Promise.reject('bad'));
+    invoke(action)
+    .then(() => {
+      store.dispatch.should.have.been.called.twice;
+      next.should.not.have.been.called.with(action);
+      done();
+    });
+  });
+
+  it('handles a rejected cooldux promiseAction and allows catching errors', (done) => {
+    const { aAction } = cooldux.promiseHandler('a', {throwErrors: true});
+    const { next, invoke, store } = createMiddleware();
+    const action = aAction(Promise.reject('bad'));
+    invoke(action)
+    .catch(err => {
+      store.dispatch.should.have.been.called.twice;
+      next.should.not.have.been.called.with(action);
+      done();
+    })
   });
 
 });

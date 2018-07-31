@@ -81,15 +81,19 @@ export function promiseHandler(type, options = {}) {
           return null;
         });
     },
+    [type + 'Action']: (promise) => {
+      promise._cooldux = { name, options };
+      return promise;
+    },
     [type + 'Reducer']: (state, action) => {
       state = state || initialState;
       switch (action.type) {
         case creators[type + 'Start'].type:
-          return {...state, [type + 'Pending']: true, [type + 'Error']: null};
+          return Object.assign({}, state, {[type + 'Pending']: true}, {[type + 'Error']: null });
         case creators[type + 'End'].type:
-          return {...state, [type + 'Pending']: false, [type + 'Error']: null, [type]: action.payload};
+          return Object.assign({}, state, {[type + 'Pending']: false}, {[type ]: action.payload });
         case creators[type + 'Error'].type:
-          return {...state, [type + 'Pending']: false, [type + 'Error']: action.payload};
+          return Object.assign({}, state, {[type + 'Pending']: false}, {[type + 'Error']: action.payload  });
         default:
           return state;
       }
@@ -116,12 +120,41 @@ export function combinedHandler(types, options) {
     return state;
   }, {});
   Object.assign(handlers, {
-    initialStateCombined: {...initialState},
+    initialStateCombined: Object.assign({}, initialState),
     reducerCombined: (state, action) =>
       types.reduce(
         (state, type) => handlers[type + 'Reducer'](state, action),
-        {...(state || initialState)}
+        Object.assign({}, (state || initialState))
       )
   });
   return handlers;
+}
+
+/**
+ * A middleware for redux that auto-dispatches cooldux actions from a cooldux promiseHandler.
+ *
+ * @param {Function} dispatch
+ */
+export const promiseMiddleware = ({ dispatch }) => {
+  return next => {
+    return action => {
+      if(action.then && action._cooldux) {
+        const { _cooldux } = action;
+        dispatch({type: _cooldux.name + '_Start'});
+        return action.then(payload => {
+          dispatch({type: _cooldux.name + '_End', payload});
+          return payload;
+        })
+        .catch(err => {
+          dispatch({type: _cooldux.name + '_Error', payload: err});
+          if(_cooldux.options.throwErrors) {
+            throw err;
+          }
+          return null;
+        });
+      }
+      next(action);
+      return action;
+    }
+  }
 }
