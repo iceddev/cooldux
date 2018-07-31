@@ -6,7 +6,7 @@ export default {
   input: 'index.mjs',
   output: {
     file: 'index.js',
-    format: 'umd',
+    format: 'cjs',
     name,
   },
   plugins: [
