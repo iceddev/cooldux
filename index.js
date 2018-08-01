@@ -53,8 +53,11 @@ function promiseHandler(type, options) {
   creators[type + 'End'] = makeActionCreator(name + '_End');
   creators[type + 'Error'] = makeActionCreator(name + '_Error');
   creators[type + 'Handler'] = function(promise, dispatch) {
+    if (!promise || !promise.then) {
+      promise = Promise.resolve(promise);
+    }
     dispatch(creators[type + 'Start']());
-    return promise.then(function(result) {
+    return Promise.resolve(promise).then(function(result) {
       dispatch(creators[type + 'End'](result));
       return result;
     }).catch(function(error) {
@@ -66,6 +69,9 @@ function promiseHandler(type, options) {
     });
   };
   creators[type + 'Action'] = function(promise) {
+    if (!promise || !promise.then) {
+      promise = Promise.resolve(promise);
+    }
     promise._cooldux = {
       name: name,
       options: options
@@ -148,13 +154,21 @@ var promiseMiddleware = function(ref) {
 
 function makeDuck(actions, options) {
   var actionProps = Object.keys(actions).filter(function(key) {
-    return typeof actions[key] === 'function';
+    return typeof actions[key] !== 'object';
   });
   var duck = combinedHandler(actionProps, options);
   actionProps.forEach(function(key) {
-    duck[key] = function() {
-      return duck[key + 'Action'](actions[key].apply(null, arguments));
-    };
+    if (typeof actions[key] === 'function') {
+      duck[key] = function() {
+        return duck[key + 'Action'](actions[key].apply(null, arguments));
+      };
+      return;
+    }
+    if (typeof actions[key] === 'undefined') {
+      duck[key] = function() {
+        return duck[key + 'Action'](arguments[0]);
+      };
+    }
   });
   duck.reducer = duck.reducerCombined;
   return duck;

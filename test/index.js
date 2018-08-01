@@ -165,13 +165,13 @@ describe('cooldux', function() {
       }
     }
 
-    handler.testHandler(new Promise(function(resolve, reject) {
-      return resolve('ok');
-    }), dispatch);
+    handler.testHandler(Promise.resolve('ok'), dispatch);
 
-    handler.testHandler(new Promise(function(resolve, reject) {
-      return reject('bad');
-    }), dispatch);
+    handler.testHandler(Promise.reject('bad'), dispatch);
+
+    handler.testHandler(1, dispatch);
+
+    handler.testHandler(null, dispatch);
 
   });
 
@@ -251,20 +251,19 @@ describe('cooldux', function() {
     });
   });
 
-  it('creates a duck', (done) => {
+  it('creates a duck with a promise returning function', (done) => {
     const duck = cooldux.makeDuck({
       a : (input) => Promise.resolve(input),
       b : () => Promise.reject('bad'),
-      c : 1,
-      d : {},
+      c : 1
     });
+
     duck.should.be.a('object');
     duck.a.should.be.a('function');
     duck.b.should.be.a('function');
     should.equal(duck.c, undefined);
-    should.equal(duck.d, undefined);
 
-    const { next, invoke, store } = createMiddleware();
+    const { invoke, store, next } = createMiddleware();
     const action = duck.a('hello');
     invoke(action)
     .then(res => {
@@ -272,7 +271,45 @@ describe('cooldux', function() {
       next.should.not.have.been.called.with(action);
       res.should.equal('hello');
       done();
-    })
+    });
+
+  });
+
+  it('creates a duck with a synchronus function', (done) => {
+    const duck = cooldux.makeDuck({
+      a : (num1, num2) => num1 + num2
+    });
+
+    duck.a.should.be.a('function');
+    
+    const { invoke, store, next } = createMiddleware();
+    const action = duck.a(1, 2);
+    invoke(action)
+    .then(res => {
+      store.dispatch.should.have.been.called.twice;
+      next.should.not.have.been.called.with(action);
+      res.should.equal(3);
+      done();
+    });
+
+  });
+
+  it('creates a duck with a default function', (done) => {
+    const duck = cooldux.makeDuck({
+      a : undefined
+    });
+
+    duck.a.should.be.a('function');
+    
+    const { invoke, store, next } = createMiddleware();
+    const action = duck.a('hello');
+    invoke(action)
+    .then(res => {
+      store.dispatch.should.have.been.called.twice;
+      next.should.not.have.been.called.with(action);
+      res.should.equal('hello');
+      done();
+    });
 
   });
 

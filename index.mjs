@@ -67,8 +67,11 @@ export function promiseHandler(type, options = {}) {
     [type + 'End']: makeActionCreator(name + '_End'),
     [type + 'Error']: makeActionCreator(name + '_Error'),
     [type + 'Handler']: (promise, dispatch) => {
+      if(!promise || !promise.then) {
+        promise = Promise.resolve(promise);
+      }
       dispatch(creators[type + 'Start']());
-      return promise
+      return Promise.resolve(promise)
         .then((result) => {
           dispatch(creators[type + 'End'](result));
           return result;
@@ -82,6 +85,9 @@ export function promiseHandler(type, options = {}) {
         });
     },
     [type + 'Action']: (promise) => {
+      if(!promise || !promise.then) {
+        promise = Promise.resolve(promise);
+      }
       promise._cooldux = { name, options };
       return promise;
     },
@@ -162,15 +168,24 @@ export const promiseMiddleware = ({ dispatch }) => {
 /**
  * A function that returns action creators and a combined reducer from a map of promise-returning functions.
  *
- * @param {Object} actions An object of promise-returning functions
+ * @param {Object} actions An object of functions
  */
 export function makeDuck(actions, options) {
-  const actionProps = Object.keys(actions).filter(key => typeof actions[key] === 'function');
+  const actionProps = Object.keys(actions).filter(key => typeof actions[key] !== 'object');
   const duck = combinedHandler(actionProps, options);
   actionProps.forEach(key => {
-    duck[key] = function() {
-      return duck[key + 'Action'](actions[key].apply(null, arguments));
+    if(typeof actions[key] === 'function') {
+      duck[key] = function() {
+        return duck[key + 'Action'](actions[key].apply(null, arguments));
+      }
+      return;
     }
+    if(typeof actions[key] === 'undefined') {
+      duck[key] = function() {
+        return duck[key + 'Action'](arguments[0]);
+      }
+    }
+    
   });
   duck.reducer = duck.reducerCombined;
   return duck;
