@@ -195,4 +195,4 @@ export default duck.reducerCombined;
 
 **That's it!**  That's your entire state handler for a couple of asynchronous functions!  Your react or whatever view can just look in redux for `props.someState.exampleA` or `props.someState.exampleAError`.  
 
-Each of the previous examples build on eachother, you don't need to use all of the function. It might be that just the early examples feel helpful or it may be that you're on board to just let the automagic take you.
+Each of the previous examples build on eachother, you certainly don't need to use all of the cooldux functions. It might be that just the early examples feel helpful or it may be that you're on board to just let the automagic take you.
