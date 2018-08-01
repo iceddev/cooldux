@@ -8,7 +8,7 @@
 ![cooldux](cooldux.png)
 
 
-Just a few very simple helpers for the [redux](http://redux.js.org/) [ducks pattern](https://github.com/erikras/ducks-modular-redux)
+Just a few helpers for the [redux](http://redux.js.org/) [ducks pattern](https://github.com/erikras/ducks-modular-redux)
 
 
 ## makeActionCreator
@@ -179,7 +179,7 @@ export default reducerCombined;
 Now that we're using middleware, can we make the above example even more automatic?  
 Of course!
 
-In cases where you just want to provide async or promise-returning functions and let cooldux manage the actions, dispatching, and the reducer, you can simply provide `cooldux.makeDuck` with a map of those functions.
+In cases where you just want to provide async or promise-returning functions and let cooldux manage the actions, dispatching, and the reducer, you can provide `cooldux.makeDuck` with a map of those functions. 
 
 ```javascript
 
@@ -193,4 +193,6 @@ export default duck.reducerCombined;
 
 ```
 
-**That's it!**  That's your entire state handler for a couple of asynchronous functions!  Your react or whatever view can just look in redux for `props.someState.exampleA` or `props.someState.exampleAError`.
+**That's it!**  That's your entire state handler for a couple of asynchronous functions!  Your react or whatever view can just look in redux for `props.someState.exampleA` or `props.someState.exampleAError`.  
+
+Each of the previous examples build on eachother, you don't need to use all of the function. It might be that just the early examples feel helpful or it may be that you're on board to just let the automagic take you.

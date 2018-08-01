@@ -1,6 +1,6 @@
 {
   "name": "cooldux",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Simple redux ducks pattern helper",
   "main": "index.js",
   "module": "index.mjs",
