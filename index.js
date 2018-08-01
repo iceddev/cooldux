@@ -146,6 +146,20 @@ var promiseMiddleware = function(ref) {
   };
 };
 
+function makeDuck(actions, options) {
+  var actionProps = Object.keys(actions).filter(function(key) {
+    return typeof actions[key] === 'function';
+  });
+  var duck = combinedHandler(actionProps, options);
+  actionProps.forEach(function(key) {
+    duck[key] = function() {
+      return duck[key + 'Action'](actions[key].apply(null, arguments));
+    };
+  });
+  duck.reducer = duck.reducerCombined;
+  return duck;
+}
+
 exports.makeActionCreator = makeActionCreator;
 
 exports.reset = reset;
@@ -157,3 +171,5 @@ exports.promiseHandler = promiseHandler;
 exports.combinedHandler = combinedHandler;
 
 exports.promiseMiddleware = promiseMiddleware;
+
+exports.makeDuck = makeDuck;

@@ -122,14 +122,14 @@ const { exampleAHandler,
        } = combinedHandler(['exampleA', 'exampleB']);
 
 
-export function fetchDataA() {
+export function exampleA() {
   return function dispatcher(dispatch) {
       const promise = somePromiseAPI();
       return exampleAHandler(promise, dispatch);
   };
 }
 
-export function fetchDataB() {
+export function exampleB() {
   return function dispatcher(dispatch) {
       const promise = somePromiseOtherAPI();
       return exampleBHandler(promise, dispatch);
@@ -165,11 +165,30 @@ const { exampleAAction,
         reducerCombined
        } = combinedHandler(['exampleA', 'exampleB']);
 
-export const fetchDataA = () => exampleAAction(somePromiseAPI());
+export const exampleA = () => exampleAAction(somePromiseAPI());
+export const exampleB = ipnut => exampleBAction(someOtherAPI(input));
 
-export const fetchDataB = () => exampleBAction(someOtherAPI());
-
-//this will run through all the reducers created
 export default reducerCombined;
+
+```
+
+## makeDuck
+
+![makeduck](makeduck.png)
+
+Now that we're using middleware, can we make the above example even more automatic?  
+Of course!
+
+In cases where you just want to provide async or promise-returning functions and let cooldux manage the actions, dispatching, and the reducer, you can simply provide `cooldux.makeDuck` with a map of those functions.
+
+```javascript
+
+const duck = makeDuck({
+  exmapleA : somePromiseAPI,
+  exampleB : input => someOtherAPI(input)
+});
+
+export const { exampleA, exampleB } = duck;
+export default duck.reducerCombined;
 
 ```
