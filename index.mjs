@@ -158,3 +158,20 @@ export const promiseMiddleware = ({ dispatch }) => {
     }
   }
 }
+
+/**
+ * A function that returns action creators and a combined reducer from a map of promise-returning functions.
+ *
+ * @param {Object} actions An object of promise-returning functions
+ */
+export function makeDuck(actions, options) {
+  const actionProps = Object.keys(actions).filter(key => typeof actions[key] === 'function');
+  const duck = combinedHandler(actionProps, options);
+  actionProps.forEach(key => {
+    duck[key] = function() {
+      return duck[key + 'Action'](actions[key].apply(null, arguments));
+    }
+  });
+  duck.reducer = duck.reducerCombined;
+  return duck;
+}

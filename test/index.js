@@ -6,7 +6,7 @@ var spies = require('chai-spies');
 chai.use(spies);
 
 var expect = chai.expect;
-chai.should();
+var should = chai.should();
 
 var cooldux = require('../index.js');
 
@@ -248,7 +248,32 @@ describe('cooldux', function() {
       store.dispatch.should.have.been.called.twice;
       next.should.not.have.been.called.with(action);
       done();
+    });
+  });
+
+  it('creates a duck', (done) => {
+    const duck = cooldux.makeDuck({
+      a : (input) => Promise.resolve(input),
+      b : () => Promise.reject('bad'),
+      c : 1,
+      d : {},
+    });
+    duck.should.be.a('object');
+    duck.a.should.be.a('function');
+    duck.b.should.be.a('function');
+    should.equal(duck.c, undefined);
+    should.equal(duck.d, undefined);
+
+    const { next, invoke, store } = createMiddleware();
+    const action = duck.a('hello');
+    invoke(action)
+    .then(res => {
+      store.dispatch.should.have.been.called.twice;
+      next.should.not.have.been.called.with(action);
+      res.should.equal('hello');
+      done();
     })
+
   });
 
 });
