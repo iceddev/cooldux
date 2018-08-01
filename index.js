@@ -168,7 +168,9 @@ function makeDuck(actions, options) {
       duck[key] = function() {
         return duck[key + 'Action'](arguments[0]);
       };
+      return;
     }
+    throw new Error('actions must be functions or undefined');
   });
   duck.reducer = duck.reducerCombined;
   return duck;

@@ -255,7 +255,6 @@ describe('cooldux', function() {
     const duck = cooldux.makeDuck({
       a : (input) => Promise.resolve(input),
       b : () => Promise.reject('bad'),
-      c : 1
     });
 
     duck.should.be.a('object');
@@ -311,6 +310,18 @@ describe('cooldux', function() {
       done();
     });
 
+  });
+
+  it('duck actions should error if not a function or undefined', (done) => {
+    try {
+      cooldux.makeDuck({
+        a : 'foo'
+      });
+    } catch (error) {
+      error.should.be.an('error');
+      done();
+    }
+    
   });
 
 });
