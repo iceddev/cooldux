@@ -192,3 +192,5 @@ export const { exampleA, exampleB } = duck;
 export default duck.reducerCombined;
 
 ```
+
+**That's it!**  That's your entire state handler for a couple of asynchronous functions!  Your react or whatever view can just look in redux for `props.someState.exampleA` or `props.someState.exampleAError`.
