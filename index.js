@@ -54,7 +54,8 @@ function promiseHandler(type, options) {
   creators[type + 'Error'] = makeActionCreator(name + '_Error');
   creators[type + 'Handler'] = function(promise, dispatch) {
     if (!promise || !promise.then) {
-      promise = Promise.resolve(promise);
+      dispatch(creators[type + 'End'](promise));
+      return Promise.resolve(promise);
     }
     dispatch(creators[type + 'Start']());
     return Promise.resolve(promise).then(function(result) {
@@ -71,6 +72,12 @@ function promiseHandler(type, options) {
   creators[type + 'Action'] = function(promise) {
     if (!promise || !promise.then) {
       promise = Promise.resolve(promise);
+      promise._cooldux = {
+        name: name,
+        options: options,
+        sync: true
+      };
+      return promise;
     }
     promise._cooldux = {
       name: name,
@@ -126,6 +133,15 @@ var promiseMiddleware = function(ref) {
     return function(action) {
       if (action.then && action._cooldux) {
         var _cooldux = action._cooldux;
+        if (_cooldux.sync) {
+          return action.then(function(payload) {
+            dispatch({
+              type: _cooldux.name + '_End',
+              payload: payload
+            });
+            return payload;
+          });
+        }
         dispatch({
           type: _cooldux.name + '_Start'
         });

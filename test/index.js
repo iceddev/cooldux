@@ -285,7 +285,7 @@ describe('cooldux', function() {
     const action = duck.a(1, 2);
     invoke(action)
     .then(res => {
-      store.dispatch.should.have.been.called.twice;
+      store.dispatch.should.have.been.called.once;
       next.should.not.have.been.called.with(action);
       res.should.equal(3);
       done();
@@ -304,7 +304,7 @@ describe('cooldux', function() {
     const action = duck.a('hello');
     invoke(action)
     .then(res => {
-      store.dispatch.should.have.been.called.twice;
+      store.dispatch.should.have.been.called.once;
       next.should.not.have.been.called.with(action);
       res.should.equal('hello');
       done();
@@ -321,7 +321,7 @@ describe('cooldux', function() {
       error.should.be.an('error');
       done();
     }
-    
+
   });
 
 });
