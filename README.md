@@ -211,7 +211,7 @@ export default duck.reducerCombined;
 
 ```
 
-In this example if you call `exampleACached` the cooldux middleware will check the state for `foo.exampleA` and if it sees a value return that, otherwise call the `exampleA` function.  **Your namespace must be the as the property this duck belongs to.**
+In this example if you call `exampleACached` the cooldux middleware will check the state for `foo.exampleA` and if it sees a [truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy) value return that, otherwise call the `exampleA` function.  **Your namespace must be the as the property this duck belongs to.**
 
 
 
