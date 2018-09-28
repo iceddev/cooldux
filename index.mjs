@@ -108,6 +108,16 @@ export function promiseHandler(type, options = {}) {
       }
     }
   };
+  if(options.cache) {
+    if(!options.namespace) {
+      throw new Error('Must specify a namespace option when using cached actions');
+    }
+    creators[type + 'ActionCached'] = (actionFunc, actionArgs) => {
+      const promise = Promise.resolve(type + 'ActionCached');
+      promise._cooldux = { namespace: options.namespace, name, options, cache: true, actionFunc, actionArgs, type };
+      return promise;
+    }
+  }
   return creators;
 }
 
@@ -139,12 +149,27 @@ export function combinedHandler(types, options) {
   return handlers;
 }
 
+
+function actionResolver(promise, _cooldux, dispatch) {
+  return promise.then(payload => {
+    dispatch({type: _cooldux.name + '_End', payload});
+    return payload;
+  })
+  .catch(err => {
+    dispatch({type: _cooldux.name + '_Error', payload: err});
+    if(_cooldux.options.throwErrors) {
+      throw err;
+    }
+    return null;
+  });
+}
+
 /**
  * A middleware for redux that auto-dispatches cooldux actions from a cooldux promiseHandler.
  *
  * @param {Function} dispatch
  */
-export const promiseMiddleware = ({ dispatch }) => {
+export const promiseMiddleware = ({ dispatch, getState }) => {
   return next => {
     return action => {
       if(action.then && action._cooldux) {
@@ -155,18 +180,23 @@ export const promiseMiddleware = ({ dispatch }) => {
             return payload;
           });
         }
-        dispatch({type: _cooldux.name + '_Start'});
-        return action.then(payload => {
-          dispatch({type: _cooldux.name + '_End', payload});
-          return payload;
-        })
-        .catch(err => {
-          dispatch({type: _cooldux.name + '_Error', payload: err});
-          if(_cooldux.options.throwErrors) {
-            throw err;
+        else if(_cooldux.cache) {
+          const state = getState();
+          if(state[_cooldux.namespace]) {
+            const cachedValue = state[_cooldux.namespace][_cooldux.type];
+            if(cachedValue) {
+              dispatch({type: _cooldux.name + '_End', payload: cachedValue});
+              return Promise.resolve(cachedValue);
+            }
+            dispatch({type: _cooldux.name + '_Start'});
+            const promise = Promise.resolve(_cooldux.actionFunc.apply(null, _cooldux.actionArgs))
+            return actionResolver(promise, _cooldux, dispatch);
           }
-          return null;
-        });
+
+          return actionResolver(Promise.reject(_cooldux.namespace + ' namespace not in state'), _cooldux, dispatch); 
+        }
+        dispatch({type: _cooldux.name + '_Start'});
+        return actionResolver(action, _cooldux, dispatch);
       }
       next(action);
       return action;
@@ -179,13 +209,18 @@ export const promiseMiddleware = ({ dispatch }) => {
  *
  * @param {Object} actions An object of functions
  */
-export function makeDuck(actions, options) {
+export function makeDuck(actions, options = {}) {
   const actionProps = Object.keys(actions).filter(key => typeof actions[key] !== 'object');
   const duck = combinedHandler(actionProps, options);
   actionProps.forEach(key => {
     if(typeof actions[key] === 'function') {
       duck[key] = function() {
         return duck[key + 'Action'](actions[key].apply(null, arguments));
+      }
+      if(options.cache) {
+        duck[key + 'Cached'] = function() {
+          return duck[key + 'ActionCached'](actions[key], arguments);
+        }
       }
       return;
     }
