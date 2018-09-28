@@ -193,7 +193,7 @@ export default duck.reducerCombined;
 
 ```
 
-**That's it!**  That's your entire state handler for a couple of functions that can by synchronous or promise-returing!  Your react or whatever view can just look in redux for `props.someState.exampleA` or `props.someState.exampleAError`.  
+That's your entire state handler for a couple of functions that can by synchronous or promise-returing!  Your react or whatever view can just look in redux for `props.someState.exampleA` or `props.someState.exampleAError`.  
 
 
 ## cache
@@ -211,10 +211,10 @@ export default duck.reducerCombined;
 
 ```
 
-In this example if you call `exampleACached` the cooldux middleware will check the state for `foo.exampleA` and if it sees a value return that, otherwise call the `exampleA` function.  Your namespace must be the as the property this duck belongs to.
+In this example if you call `exampleACached` the cooldux middleware will check the state for `foo.exampleA` and if it sees a value return that, otherwise call the `exampleA` function.  **Your namespace must be the as the property this duck belongs to.**
 
 
 
-## that's it!
+## That's it for now!
 
 Each of the previous examples build on eachother, you certainly don't need to use all of the cooldux functions. It might be that just the early examples feel helpful or it may be that you're on board to use it all and just let the automagic take you.
