@@ -195,4 +195,26 @@ export default duck.reducerCombined;
 
 **That's it!**  That's your entire state handler for a couple of functions that can by synchronous or promise-returing!  Your react or whatever view can just look in redux for `props.someState.exampleA` or `props.someState.exampleAError`.  
 
+
+## cache
+
+Sometimes you only want to do an action once. For example only fetch data from an API if you haven't already.  `makeDuck` and `promiseHandler` can take an option to return actions that will check state and only call your action if needed.
+
+```javascript
+
+const duck = makeDuck({
+  exmapleA : somePromiseAPI
+}, {namespace: 'foo', cache: true});
+
+export const { exampleA, exampleACached } = duck;
+export default duck.reducerCombined;
+
+```
+
+In this example if you call `exampleACached` the cooldux middleware will check the state for `foo.exampleA` and if it sees a value return that, otherwise call the `exampleA` function.  Your namespace must be the as the property this duck belongs to.
+
+
+
+## that's it!
+
 Each of the previous examples build on eachother, you certainly don't need to use all of the cooldux functions. It might be that just the early examples feel helpful or it may be that you're on board to use it all and just let the automagic take you.

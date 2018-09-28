@@ -11,10 +11,10 @@ var should = chai.should();
 var cooldux = require('../index.js');
 
 
-function createMiddleware () {
+function createMiddleware (state = {}) {
   const store = {
     getState: chai.spy(function() {
-      return {};
+      return state;
     }),
     dispatch: chai.spy(function() {})
   };
@@ -293,6 +293,70 @@ describe('cooldux', function() {
 
   });
 
+  it('creates a duck with a cache check with cache in the store', (done) => {
+    const duck = cooldux.makeDuck({
+      a : (num1, num2) => num1 + num2
+    }, {namespace: 'foo', cache: true});
+
+    duck.a.should.be.a('function');
+    duck.aCached.should.be.a('function');
+    
+    const { invoke, store, next } = createMiddleware({foo: {a: 'this isnt even a number!'}});
+    const action = duck.aCached(1, 2);
+    invoke(action)
+    .then(res => {
+      next.should.not.have.been.called.with(action);
+      res.should.equal('this isnt even a number!');
+      done();
+    });
+  });
+
+  it('creates a duck with a cache check without cache in the store', (done) => {
+    const duck = cooldux.makeDuck({
+      a : (num1, num2) => num1 + num2
+    }, {namespace: 'foo', cache: true});
+
+    duck.a.should.be.a('function');
+    duck.aCached.should.be.a('function');
+    
+    const { invoke, store, next } = createMiddleware({foo: {}});
+    const action = duck.aCached(1, 2);
+    invoke(action)
+    .then(res => {
+      next.should.not.have.been.called.with(action);
+      res.should.equal(3);
+      done();
+    });
+  });
+
+  it('makeDuck with caching should error if namespace not supplied', (done) => {
+    try {
+      cooldux.makeDuck({
+        a : (num1, num2) => num1 + num2
+      }, {cache: true});
+    } catch (error) {
+      error.should.be.an('error');
+      done();
+    }
+  });
+
+  it('makeDuck with caching should error if supplied namespace is not same as the state property', (done) => {
+    const duck = cooldux.makeDuck({
+      a : (num1, num2) => num1 + num2
+    }, {namespace: 'foo', cache: true, throwErrors: true});
+
+    duck.a.should.be.a('function');
+    duck.aCached.should.be.a('function');
+    
+    const { invoke, store, next } = createMiddleware({bar: {a: 3}});
+    const action = duck.aCached(1, 2);
+    invoke(action)
+    .catch(error => {
+      next.should.not.have.been.called.with(action);
+      done();
+    });
+  });
+
   it('creates a duck with a default function', (done) => {
     const duck = cooldux.makeDuck({
       a : undefined
@@ -312,7 +376,7 @@ describe('cooldux', function() {
 
   });
 
-  it('duck actions should error if not a function or undefined', (done) => {
+  it('makeDuck should error if not a function or undefined', (done) => {
     try {
       cooldux.makeDuck({
         a : 'foo'
@@ -323,5 +387,7 @@ describe('cooldux', function() {
     }
 
   });
+
+
 
 });

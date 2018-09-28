@@ -105,6 +105,24 @@ function promiseHandler(type, options) {
       return state;
     }
   };
+  if (options.cache) {
+    if (!options.namespace) {
+      throw new Error('Must specify a namespace option when using cached actions');
+    }
+    creators[type + 'ActionCached'] = function(actionFunc, actionArgs) {
+      var promise = Promise.resolve(type + 'ActionCached');
+      promise._cooldux = {
+        namespace: options.namespace,
+        name: name,
+        options: options,
+        cache: true,
+        actionFunc: actionFunc,
+        actionArgs: actionArgs,
+        type: type
+      };
+      return promise;
+    };
+  }
   return creators;
 }
 
@@ -127,8 +145,28 @@ function combinedHandler(types, options) {
   return handlers;
 }
 
+function actionResolver(promise, _cooldux, dispatch) {
+  return promise.then(function(payload) {
+    dispatch({
+      type: _cooldux.name + '_End',
+      payload: payload
+    });
+    return payload;
+  }).catch(function(err) {
+    dispatch({
+      type: _cooldux.name + '_Error',
+      payload: err
+    });
+    if (_cooldux.options.throwErrors) {
+      throw err;
+    }
+    return null;
+  });
+}
+
 var promiseMiddleware = function(ref) {
   var dispatch = ref.dispatch;
+  var getState = ref.getState;
   return function(next) {
     return function(action) {
       if (action.then && action._cooldux) {
@@ -141,26 +179,29 @@ var promiseMiddleware = function(ref) {
             });
             return payload;
           });
+        } else if (_cooldux.cache) {
+          var state = getState();
+          if (state[_cooldux.namespace]) {
+            var cachedValue = state[_cooldux.namespace][_cooldux.type];
+            if (cachedValue) {
+              dispatch({
+                type: _cooldux.name + '_End',
+                payload: cachedValue
+              });
+              return Promise.resolve(cachedValue);
+            }
+            dispatch({
+              type: _cooldux.name + '_Start'
+            });
+            var promise = Promise.resolve(_cooldux.actionFunc.apply(null, _cooldux.actionArgs));
+            return actionResolver(promise, _cooldux, dispatch);
+          }
+          return actionResolver(Promise.reject(_cooldux.namespace + ' namespace not in state'), _cooldux, dispatch);
         }
         dispatch({
           type: _cooldux.name + '_Start'
         });
-        return action.then(function(payload) {
-          dispatch({
-            type: _cooldux.name + '_End',
-            payload: payload
-          });
-          return payload;
-        }).catch(function(err) {
-          dispatch({
-            type: _cooldux.name + '_Error',
-            payload: err
-          });
-          if (_cooldux.options.throwErrors) {
-            throw err;
-          }
-          return null;
-        });
+        return actionResolver(action, _cooldux, dispatch);
       }
       next(action);
       return action;
@@ -169,6 +210,9 @@ var promiseMiddleware = function(ref) {
 };
 
 function makeDuck(actions, options) {
+  if (options === void 0) {
+    options = {};
+  }
   var actionProps = Object.keys(actions).filter(function(key) {
     return typeof actions[key] !== 'object';
   });
@@ -178,6 +222,11 @@ function makeDuck(actions, options) {
       duck[key] = function() {
         return duck[key + 'Action'](actions[key].apply(null, arguments));
       };
+      if (options.cache) {
+        duck[key + 'Cached'] = function() {
+          return duck[key + 'ActionCached'](actions[key], arguments);
+        };
+      }
       return;
     }
     if (typeof actions[key] === 'undefined') {
